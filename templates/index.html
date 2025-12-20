@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="grid">
+  <div class="card">
+    <h2>Chain Tip</h2>
+    <p>Height: {{ chain.blocks }}</p>
+    <p>Best Hash: <a class="hash" href="{{ url_for('block_detail', block_hash=chain.bestblockhash) }}">{{ chain.bestblockhash }}</a></p>
+    <p>Difficulty: {{ "%.6f"|format(chain.difficulty) }}</p>
+  </div>
+  <div class="card">
+    <h2>Mempool</h2>
+    <p>Transactions: {{ mempool.size }}</p>
+    <p>Bytes: {{ "{:,}".format(mempool.bytes) }}</p>
+    <p>Min Relay Fee: {{ "%.8f"|format(mempool.mempoolminfee) }}</p>
+  </div>
+  <div class="card">
+    <h2>Network</h2>
+    <p>Connections: {{ chain.connections if chain.connections is defined else "n/a" }}</p>
+    <p>Bytes Sent: {{ "{:,}".format(net.totalbytessent) }}</p>
+    <p>Bytes Recv: {{ "{:,}".format(net.totalbytesrecv) }}</p>
+  </div>
+</section>
+
+<h2 style="margin-top:2rem;">Latest Blocks</h2>
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Height</th>
+        <th>Hash</th>
+        <th>Time</th>
+        <th>Tx</th>
+        <th>Size (bytes)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for block in blocks %}
+      <tr>
+        <td><a href="{{ url_for('block_by_height', height=block.height) }}">{{ block.height }}</a></td>
+        <td class="hash"><a href="{{ url_for('block_detail', block_hash=block.hash) }}">{{ block.hash }}</a></td>
+        <td>{{ block.age }}</td>
+        <td>{{ block.nTx }}</td>
+        <td>{{ "{:,}".format(block.size) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

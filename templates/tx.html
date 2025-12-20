@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Transaction <span class="hash">{{ tx.txid }}</span></h2>
+  <p><strong>Block:</strong>
+    {% if block_hash %}
+      <a class="hash" href="{{ url_for('block_detail', block_hash=block_hash) }}">{{ block_hash }}</a>
+    {% else %}
+      (unconfirmed)
+    {% endif %}
+  </p>
+  <p><strong>Confirmations:</strong> {{ confirmations }}</p>
+  <p><strong>Size:</strong> {{ tx.size }} bytes</p>
+  <p><strong>Fee:</strong> {{ "{:.8f}".format(fee_bline) }} BLINE</p>
+</div>
+
+<h2>Details</h2>
+<div class="tx-grid">
+  <div class="tx-section">
+    <h3>Inputs</h3>
+    <ul>
+      {% for vin in tx.decoded_inputs %}
+      <li>
+        {% if vin.is_coinbase %}
+          Coinbase (newly minted coins)
+        {% else %}
+          <div><span class="muted">From:</span> {{ vin.address or "unknown" }}</div>
+          <div><span class="muted">Amount:</span> {{ format_amount(vin.value or 0) }} BLINE</div>
+          <div><span class="muted">Prev Out:</span> <a class="hash" href="{{ url_for('tx_detail', txid=vin.txid) }}">{{ vin.txid }}</a> #{{ vin.vout }}</div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="tx-section">
+    <h3>Outputs</h3>
+    <ul>
+      {% for vout in tx.decoded_outputs %}
+      <li>
+        <div><span class="muted">To:</span> {{ vout.address or "unknown" }}</div>
+        <div><span class="muted">Amount:</span> {{ format_amount(vout.value) }} BLINE</div>
+        <div><span class="muted">Index:</span> {{ vout.index }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

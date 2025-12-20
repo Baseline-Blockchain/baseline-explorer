@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ network_name }} Explorer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="description" content="A simple, transparent explorer for the {{ network_name }} blockchain.">
+    <meta name="keywords" content="blockchain, explorer, {{ network_name }}, transactions, blocks, addresses">
+    <meta name="author" content="The Baseline Project">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+  </head>
+  <body>
+    <header class="top-bar">
+      <div class="brand">
+        <a href="{{ url_for('index') }}">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" height="54">
+        </a>
+        <div>
+          <a href="{{ url_for('index') }}">
+          <h1>{{ network_name }} Explorer</h1></a>
+          <p class="subtitle">Simple, transparent view of the Baseline blockchain</p>
+        </div>
+      </div>
+      <form class="search" action="{{ url_for('search') }}" method="post">
+        <input name="query" placeholder="Block / tx / address / height" autocomplete="off">
+        <button type="submit">Search</button>
+      </form>
+    </header>
+
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+      <p>Data pulled directly from {{ RPC_URL|default('the Baseline node') }} via JSON-RPC.</p>
+    </footer>
+  </body>
+</html>

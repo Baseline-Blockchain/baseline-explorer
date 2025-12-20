@@ -1,0 +1,15 @@
+{
+  "rpc": {
+    "host": "127.0.0.1",
+    "port": 8832,
+    "username": "localuser",
+    "password": "localpass",
+    "use_https": false
+  },
+  "display": {
+    "recent_blocks": 12,
+    "transactions_per_page": 25,
+    "address_history": 20,
+    "network_name": "Baseline"
+  }
+}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Address <span class="hash">{{ address }}</span></h2>
+  <p><strong>Balance:</strong> {{ format_amount(balance.balance_liners) }} BLINE</p>
+  <p><strong>Total Received:</strong> {{ format_amount(balance.received_liners) }} BLINE</p>
+  <p><strong>Spendable UTXOs:</strong> {{ utxos|length }}</p>
+</div>
+
+<h2>Recent Activity</h2>
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>TxID</th>
+        <th>Time</th>
+        <th>Received</th>
+        <th>Sent</th>
+        <th>Net</th>
+        <th>Confirmations</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in history %}
+      <tr>
+        <td class="hash"><a href="{{ url_for('tx_detail', txid=entry.txid, block=entry.blockhash) }}">{{ entry.txid }}</a></td>
+        <td>{{ format_timestamp(entry.time) }}</td>
+        <td>{{ format_amount(entry.received) }}</td>
+        <td>{{ format_amount(entry.sent) }}</td>
+        <td>{{ format_amount(entry.net) }}</td>
+        <td>{{ entry.confirmations }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2>UTXO Set</h2>
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>TxID</th>
+        <th>Index</th>
+        <th>Amount</th>
+        <th>Height</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for utxo in utxos %}
+      <tr>
+        <td class="hash"><a href="{{ url_for('tx_detail', txid=utxo.txid) }}">{{ utxo.txid }}</a></td>
+        <td>{{ utxo.outputIndex }}</td>
+        <td>{{ format_amount(utxo.liners) }}</td>
+        <td>{{ utxo.height }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

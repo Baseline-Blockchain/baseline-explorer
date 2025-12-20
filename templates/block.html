@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Block {{ block.height if block.height is defined else "" }}</h2>
+  <p><strong>Hash:</strong> <span class="hash">{{ block.hash }}</span></p>
+  <p><strong>Previous:</strong> <a class="hash" href="{{ url_for('block_detail', block_hash=block.previousblockhash) }}">{{ block.previousblockhash }}</a></p>
+  <p><strong>Next:</strong>
+    {% if block.nextblockhash %}
+      <a class="hash" href="{{ url_for('block_detail', block_hash=block.nextblockhash) }}">{{ block.nextblockhash }}</a>
+    {% else %}
+      (tip)
+    {% endif %}
+  </p>
+  <p><strong>Time:</strong> {{ block.time_human }} ({{ block.age }})</p>
+  <p><strong>Transactions:</strong> {{ block.nTx }}</p>
+  <p><strong>Size:</strong> {{ "{:,}".format(block.size) }} bytes, Weight {{ "{:,}".format(block.weight) }}</p>
+  <p><strong>Bits:</strong> {{ block.bits }}, Difficulty {{ "%.6f"|format(block.difficulty) }}</p>
+</div>
+
+<h2>Transactions</h2>
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Transaction ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for txid in transactions %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td class="hash"><a href="{{ url_for('tx_detail', txid=txid, block=block.hash) }}">{{ txid }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
