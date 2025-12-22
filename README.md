@@ -1,7 +1,5 @@
 ## Baseline Explorer
 
-![Preview of the Baseline Explorer UI](preview.png)
-
 A lightweight Flask UI that hits a local Baseline node via JSON-RPC to show:
 
 - Latest blocks, per-block details, and live mempool stats
