@@ -14,7 +14,6 @@
   <p><strong>Time:</strong> {{ block.time_human }} ({{ block.age }})</p>
   <p><strong>Transactions:</strong> {{ block.nTx }}</p>
   <p><strong>Size:</strong> {{ "{:,}".format(block.size) }} bytes, Weight {{ "{:,}".format(block.weight) }}</p>
-  <p><strong>Bits:</strong> {{ block.bits }}, Difficulty {{ "%.6f"|format(block.difficulty) }}</p>
 </div>
 
 <h2>Transactions</h2>

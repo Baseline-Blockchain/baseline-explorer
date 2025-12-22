@@ -92,7 +92,6 @@ def tx_detail(txid: str) -> str:
 def address_detail(address: str) -> str:
     try:
         balance = rpc_call("getaddressbalance", [{"addresses": [address]}])
-        utxos = rpc_call("getaddressutxos", [{"addresses": [address]}])
         tx_refs = rpc_call(
             "getaddresstxids",
             [{"addresses": [address], "include_height": True}],
@@ -129,14 +128,11 @@ def address_detail(address: str) -> str:
                 "confirmations": tx.get("confirmations", 0),
             }
         )
-    total_utxo = sum(entry["liners"] for entry in utxos)
     return render_template(
         "address.html",
         address=address,
         balance=balance,
-        utxos=utxos,
         history=history,
-        total_utxo=total_utxo,
     )
 
 
