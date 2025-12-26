@@ -17,6 +17,14 @@ def format_timestamp(ts: int | None) -> str:
     return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
+def format_lock_time(lock_time: int | None) -> str:
+    if lock_time is None:
+        return "-"
+    if lock_time < 500_000_000:
+        return f"height {lock_time}"
+    return format_timestamp(lock_time)
+
+
 def human_delta(ts: int | None) -> str:
     if not ts:
         return "-"
@@ -73,5 +81,6 @@ __all__ = [
     "double_sha256",
     "format_amount",
     "format_timestamp",
+    "format_lock_time",
     "human_delta",
 ]

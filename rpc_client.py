@@ -20,21 +20,23 @@ def load_config() -> dict[str, Any]:
     rpc = config.get("rpc", {})
     rpc.setdefault("host", "127.0.0.1")
     rpc.setdefault("port", 8832)
-    rpc.setdefault("username", "localuser")
-    rpc.setdefault("password", "localpass")
+    rpc.setdefault("username", "")
+    rpc.setdefault("password", "")
     rpc.setdefault("use_https", False)
     config["rpc"] = rpc
     display = config.get("display", {})
     display.setdefault("recent_blocks", 10)
     display.setdefault("transactions_per_page", 25)
     display.setdefault("address_history", 15)
+    display.setdefault("scheduled_recent", 8)
+    display.setdefault("rich_list_per_page", display.get("rich_list_limit", 25))
     display.setdefault("network_name", "Baseline")
     config["display"] = display
     return config
 
 
 class RPCClient:
-    def __init__(self, url: str, auth: tuple[str, str], *, timeout: int = 15):
+    def __init__(self, url: str, auth: tuple[str, str] | None, *, timeout: int = 15):
         self.url = url
         self.auth = auth
         self.timeout = timeout
@@ -60,7 +62,10 @@ class RPCClient:
 CONFIG = load_config()
 SCHEME = "https" if CONFIG["rpc"].get("use_https") else "http"
 RPC_URL = f"{SCHEME}://{CONFIG['rpc']['host']}:{CONFIG['rpc']['port']}"
-RPC_CLIENT = RPCClient(RPC_URL, (CONFIG["rpc"]["username"], CONFIG["rpc"]["password"]))
+auth = None
+if CONFIG["rpc"]["username"] and CONFIG["rpc"]["password"]:
+    auth = (CONFIG["rpc"]["username"], CONFIG["rpc"]["password"])
+RPC_CLIENT = RPCClient(RPC_URL, auth)
 
 
 def rpc_call(method: str, params: list[Any] | None = None) -> Any:

@@ -5,9 +5,9 @@ from typing import Any
 
 from flask import Flask, abort, redirect, render_template, request, url_for
 
-from helpers import format_amount, format_timestamp, human_delta
+from helpers import format_amount, format_lock_time, format_timestamp, human_delta
 from rpc_client import CONFIG, RPCError, RPC_URL, rpc_call
-from services import expand_transaction, fetch_recent_blocks
+from services import expand_transaction, fetch_recent_blocks, fetch_recent_transactions
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("EXPLORER_SECRET_KEY", "baseline-explorer")
@@ -18,6 +18,7 @@ def inject_helpers() -> dict[str, Any]:
     return {
         "format_amount": format_amount,
         "format_timestamp": format_timestamp,
+        "format_lock_time": format_lock_time,
         "human_delta": human_delta,
         "network_name": CONFIG["display"]["network_name"],
         "RPC_URL": RPC_URL,
@@ -28,7 +29,6 @@ def inject_helpers() -> dict[str, Any]:
 def index() -> str:
     chain_info = rpc_call("getblockchaininfo")
     mempool_info = rpc_call("getmempoolinfo")
-    net_totals = rpc_call("getnettotals")
     latest_height = chain_info["blocks"]
     recent = CONFIG["display"]["recent_blocks"]
     blocks = fetch_recent_blocks(latest_height, recent)
@@ -36,8 +36,77 @@ def index() -> str:
         "index.html",
         chain=chain_info,
         mempool=mempool_info,
-        net=net_totals,
         blocks=blocks,
+    )
+
+
+@app.route("/scheduled")
+def scheduled() -> str:
+    try:
+        schedules = rpc_call("listscheduledtx")
+    except RPCError as exc:
+        app.logger.warning("Unable to list scheduled sends: %s", exc)
+        schedules = []
+    limit = CONFIG["display"]["scheduled_recent"]
+    return render_template(
+        "scheduled.html",
+        scheduled=schedules[:limit],
+    )
+
+
+@app.route("/transactions")
+def transactions() -> str:
+    try:
+        page = max(int(request.args.get("page", "1")), 1)
+    except ValueError:
+        page = 1
+    per_page = CONFIG["display"]["transactions_per_page"]
+    offset = (page - 1) * per_page
+    latest_height = rpc_call("getblockchaininfo")["blocks"]
+    raw_transactions = fetch_recent_transactions(latest_height, per_page + 1, offset)
+    has_next = len(raw_transactions) > per_page
+    return render_template(
+        "transactions.html",
+        transactions=raw_transactions[:per_page],
+        page=page,
+        has_prev=page > 1,
+        has_next=has_next,
+        per_page=per_page,
+    )
+
+
+@app.route("/richlist")
+def richlist() -> str:
+    try:
+        page = max(int(request.args.get("page", "1")), 1)
+    except ValueError:
+        page = 1
+    per_page = CONFIG["display"].get("rich_list_per_page", 25)
+    per_page = max(1, int(per_page))
+    offset = (page - 1) * per_page
+    error = None
+    try:
+        rpc_entries = rpc_call("getrichlist", [per_page + 1, offset])
+    except RPCError as exc:
+        app.logger.warning("Unable to fetch rich list: %s", exc)
+        rpc_entries = []
+        error = str(exc)
+    has_next = len(rpc_entries) > per_page
+    rich_rows = []
+    for idx, entry in enumerate(rpc_entries[:per_page], start=offset + 1):
+        address = entry.get("address") if isinstance(entry, dict) else None
+        balance = None
+        if isinstance(entry, dict):
+            balance = entry.get("balance_liners")
+        rich_rows.append({"rank": idx, "address": address, "balance": balance})
+    return render_template(
+        "richlist.html",
+        richlist=rich_rows,
+        page=page,
+        has_prev=page > 1,
+        has_next=has_next,
+        per_page=per_page,
+        error=error,
     )
 
 

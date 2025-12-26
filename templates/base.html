@@ -20,10 +20,17 @@
         </a>
         <div>
           <a href="{{ url_for('index') }}">
-          <h1>{{ network_name }} Explorer</h1></a>
+            <h1>{{ network_name }} Explorer</h1>
+          </a>
           <p class="subtitle">Simple, transparent view of the Baseline blockchain</p>
         </div>
       </div>
+      <nav class="main-nav">
+        <a href="{{ url_for('index') }}">Blocks</a>
+        <a href="{{ url_for('transactions') }}">Transactions</a>
+        <a href="{{ url_for('richlist') }}">Rich List</a>
+        <a href="{{ url_for('scheduled') }}">Scheduled Sends</a>
+      </nav>
       <form class="search" action="{{ url_for('search') }}" method="post">
         <input name="query" placeholder="Block / tx / address / height" autocomplete="off">
         <button type="submit">Search</button>

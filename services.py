@@ -95,6 +95,40 @@ def expand_transaction(txid: str, *, block_hash: str | None = None) -> dict[str,
     return tx
 
 
+def fetch_recent_transactions(
+    latest_height: int, limit: int, offset: int, *, include_mempool: bool = False
+) -> list[dict[str, Any]]:
+    """Return reversed chronological list of transactions with pagination."""
+    transactions: list[dict[str, Any]] = []
+    height = latest_height
+    while len(transactions) < limit + offset and height >= 0:
+        block = fetch_block_by_height(height)
+        for txid in block.get("tx", []):
+            if len(transactions) >= limit + offset:
+                break
+            try:
+                tx = expand_transaction(txid, block_hash=block["hash"])
+            except RPCError:
+                continue
+            inputs_sum = sum(inp.value or 0 for inp in tx["decoded_inputs"] if inp.value)
+            outputs_sum = sum(out.value for out in tx["decoded_outputs"])
+            transactions.append(
+                {
+                    "txid": txid,
+                    "block": block,
+                    "time": block["time"],
+                    "height": height,
+                    "confirmations": block.get("confirmations", 0),
+                    "size": tx.get("size"),
+                    "fee": inputs_sum - outputs_sum if inputs_sum else None,
+                    "input_sum": inputs_sum,
+                    "output_sum": outputs_sum,
+                }
+            )
+        height -= 1
+    return transactions[offset : offset + limit]
+
+
 def parse_transaction_from_block(txid: str, block_hash: str) -> dict[str, Any]:
     """Fallback parser for transactions (e.g., coinbase) not served by RPC."""
     block_meta = rpc_call("getblock", [block_hash, True])
@@ -183,4 +217,5 @@ __all__ = [
     "TxOutput",
     "expand_transaction",
     "fetch_recent_blocks",
+    "fetch_recent_transactions",
 ]

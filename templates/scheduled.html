@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Scheduled Sends</h2>
+{% if scheduled %}
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Schedule ID</th>
+        <th>Destination</th>
+        <th>Amount</th>
+        <th>Lock Time</th>
+        <th>Status</th>
+        <th>Cancelable</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in scheduled %}
+      <tr>
+        <td class="hash">
+          <span title="{{ entry.schedule_id }}">{{ entry.schedule_id[:12] }}…</span>
+        </td>
+        <td>{{ entry.dest_address or "-" }}</td>
+        <td>{{ "{:.8f}".format(entry.amount) }}</td>
+        <td>{{ format_lock_time(entry.lock_time) }}</td>
+        <td>{{ entry.status }}</td>
+        <td>{{ "✓" if entry.cancelable else "✕" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>No scheduled sends to show.</p>
+{% endif %}
+
+{% endblock %}

@@ -1,8 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div class="grid">
+  <div class="card">
+    <h2>Chain</h2>
+    <p class="muted">Height</p>
+    <p class="value">{{ chain.blocks }}</p>
+    <p class="muted">Difficulty</p>
+    {% set difficulty = chain.get("difficulty") %}
+    <p>
+      {% if difficulty is not none %}
+        {{ "{:,.2f}".format(difficulty) }}
+      {% else %}
+        -
+      {% endif %}
+    </p>
+  </div>
+  <div class="card">
+    <h2>Mempool</h2>
+    <p class="muted">Transactions</p>
+    <p>{{ mempool.size }}</p>
+    <p class="muted">Bytes</p>
+    <p>{{ "{:,}".format(mempool.bytes) }}</p>
+  </div>
+</div>
 
-<h2 style="margin-top:0;">Latest Blocks</h2>
+<h2 style="margin-top: 1.5rem;">Latest Blocks</h2>
 <div class="table-scroll">
   <table>
     <thead>
@@ -27,4 +50,5 @@
     </tbody>
   </table>
 </div>
+
 {% endblock %}

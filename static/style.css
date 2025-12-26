@@ -96,6 +96,12 @@ body {
   letter-spacing: 0.05em;
 }
 
+.value {
+  font-size: 2rem;
+  margin: 0.25rem 0 0.5rem;
+  font-weight: 600;
+}
+
 .card p {
   margin: 0.2rem 0;
   font-size: 1.2rem;
@@ -184,4 +190,41 @@ footer {
   font-family: "Consolas", "SFMono-Regular", monospace;
   word-break: break-all;
   overflow-wrap: anywhere;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+
+.pagination a,
+.pagination span {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.pagination a {
+  background: rgba(71, 194, 255, 0.16);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.pagination a:hover:not(.disabled) {
+  border-color: rgba(71, 194, 255, 0.4);
+}
+
+.pagination span {
+  color: var(--muted);
+}
+
+.pagination .disabled {
+  border-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
 }

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Recent Transactions</h2>
+
+<div class="pagination">
+  {% if has_prev %}
+  <a href="{{ url_for('transactions', page=page-1) }}">&larr; Previous</a>
+  {% else %}
+  <span class="disabled">&larr; Previous</span>
+  {% endif %}
+  <span class="muted">Page {{ page }}</span>
+  {% if has_next %}
+  <a href="{{ url_for('transactions', page=page+1) }}">Next &rarr;</a>
+  {% else %}
+  <span class="disabled">Next &rarr;</span>
+  {% endif %}
+</div>
+
+{% if transactions %}
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Tx ID</th>
+        <th>Block</th>
+        <th>Time</th>
+        <th>Size (bytes)</th>
+        <th>Fee (BLINE)</th>
+        <th>Confirmations</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tx in transactions %}
+      <tr>
+        <td class="hash">
+          <a href="{{ url_for('tx_detail', txid=tx.txid) }}">{{ tx.txid }}</a>
+        </td>
+        <td>
+          <a href="{{ url_for('block_by_height', height=tx.block.height) }}">{{ tx.block.height }}</a>
+          <div class="muted">
+            <a href="{{ url_for('block_detail', block_hash=tx.block.hash) }}">
+              {{ tx.block.hash[:10] }}...
+            </a>
+          </div>
+        </td>
+        <td>{{ format_timestamp(tx.time) }}</td>
+        <td>
+          {% if tx.size %}
+            {{ "{:,}".format(tx.size) }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          {% if tx.fee is not none %}
+            {{ format_amount(tx.fee) }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>{{ tx.confirmations }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="muted">No transactions available for page {{ page }}.</p>
+{% endif %}
+
+<div class="pagination">
+  {% if has_prev %}
+  <a href="{{ url_for('transactions', page=page-1) }}">&larr; Previous</a>
+  {% else %}
+  <span class="disabled">&larr; Previous</span>
+  {% endif %}
+  <span class="muted">Showing {{ per_page }} per page</span>
+  {% if has_next %}
+  <a href="{{ url_for('transactions', page=page+1) }}">Next &rarr;</a>
+  {% else %}
+  <span class="disabled">Next &rarr;</span>
+  {% endif %}
+</div>
+
+{% endblock %}

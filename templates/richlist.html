@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Rich List</h2>
+
+<div class="pagination">
+  {% if has_prev %}
+  <a href="{{ url_for('richlist', page=page-1) }}">&larr; Previous</a>
+  {% else %}
+  <span class="disabled">&larr; Previous</span>
+  {% endif %}
+  <span class="muted">Page {{ page }}</span>
+  {% if has_next %}
+  <a href="{{ url_for('richlist', page=page+1) }}">Next &rarr;</a>
+  {% else %}
+  <span class="disabled">Next &rarr;</span>
+  {% endif %}
+</div>
+
+{% if error and not richlist %}
+<p class="muted">Unable to load rich list: {{ error }}</p>
+{% endif %}
+
+{% if richlist %}
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Address</th>
+        <th>Balance (BLINE)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in richlist %}
+      <tr>
+        <td>{{ entry.rank }}</td>
+        <td class="hash">
+          {% if entry.address %}
+          <a href="{{ url_for('address_detail', address=entry.address) }}">{{ entry.address }}</a>
+          {% else %}
+          -
+          {% endif %}
+        </td>
+        <td>
+          {% if entry.balance is not none %}
+            {{ format_amount(entry.balance) }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="muted">No rich list entries to show.</p>
+{% endif %}
+
+<div class="pagination">
+  {% if has_prev %}
+  <a href="{{ url_for('richlist', page=page-1) }}">&larr; Previous</a>
+  {% else %}
+  <span class="disabled">&larr; Previous</span>
+  {% endif %}
+  <span class="muted">Showing {{ per_page }} per page</span>
+  {% if has_next %}
+  <a href="{{ url_for('richlist', page=page+1) }}">Next &rarr;</a>
+  {% else %}
+  <span class="disabled">Next &rarr;</span>
+  {% endif %}
+</div>
+
+{% endblock %}
