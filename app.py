@@ -27,30 +27,51 @@ def inject_helpers() -> dict[str, Any]:
 
 @app.route("/")
 def index() -> str:
+    try:
+        page = max(int(request.args.get("page", "1")), 1)
+    except ValueError:
+        page = 1
     chain_info = rpc_call("getblockchaininfo")
     mempool_info = rpc_call("getmempoolinfo")
     latest_height = chain_info["blocks"]
-    recent = CONFIG["display"]["recent_blocks"]
-    blocks = fetch_recent_blocks(latest_height, recent)
+    per_page = max(1, int(CONFIG["display"].get("blocks_per_page", CONFIG["display"]["recent_blocks"])))
+    offset = (page - 1) * per_page
+    paged_latest = latest_height - offset
+    blocks = fetch_recent_blocks(paged_latest, per_page) if paged_latest >= 0 else []
+    has_next = (latest_height - (offset + per_page)) >= 0
     return render_template(
         "index.html",
         chain=chain_info,
         mempool=mempool_info,
         blocks=blocks,
+        page=page,
+        has_prev=page > 1,
+        has_next=has_next,
+        per_page=per_page,
     )
 
 
 @app.route("/scheduled")
 def scheduled() -> str:
     try:
+        page = max(int(request.args.get("page", "1")), 1)
+    except ValueError:
+        page = 1
+    try:
         schedules = rpc_call("listscheduledtx")
     except RPCError as exc:
         app.logger.warning("Unable to list scheduled sends: %s", exc)
         schedules = []
-    limit = CONFIG["display"]["scheduled_recent"]
+    per_page = max(1, int(CONFIG["display"].get("scheduled_per_page", CONFIG["display"]["scheduled_recent"])))
+    offset = (page - 1) * per_page
+    has_next = len(schedules) > (offset + per_page)
     return render_template(
         "scheduled.html",
-        scheduled=schedules[:limit],
+        scheduled=schedules[offset : offset + per_page],
+        page=page,
+        has_prev=page > 1,
+        has_next=has_next,
+        per_page=per_page,
     )
 
 

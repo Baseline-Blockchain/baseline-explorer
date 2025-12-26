@@ -25,7 +25,22 @@
   </div>
 </div>
 
-<h2 style="margin-top: 1.5rem;">Latest Blocks</h2>
+<h2 style="margin-top: 1.5rem;">Blocks</h2>
+
+<div class="pagination">
+  {% if has_prev %}
+  <a href="{{ url_for('index', page=page-1) }}">&larr; Previous</a>
+  {% else %}
+  <span class="disabled">&larr; Previous</span>
+  {% endif %}
+  <span class="muted">Page {{ page }}</span>
+  {% if has_next %}
+  <a href="{{ url_for('index', page=page+1) }}">Next &rarr;</a>
+  {% else %}
+  <span class="disabled">Next &rarr;</span>
+  {% endif %}
+</div>
+
 <div class="table-scroll">
   <table>
     <thead>
@@ -49,6 +64,20 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
+
+<div class="pagination">
+  {% if has_prev %}
+  <a href="{{ url_for('index', page=page-1) }}">&larr; Previous</a>
+  {% else %}
+  <span class="disabled">&larr; Previous</span>
+  {% endif %}
+  <span class="muted">Showing {{ per_page }} per page</span>
+  {% if has_next %}
+  <a href="{{ url_for('index', page=page+1) }}">Next &rarr;</a>
+  {% else %}
+  <span class="disabled">Next &rarr;</span>
+  {% endif %}
 </div>
 
 {% endblock %}

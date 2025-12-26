@@ -25,16 +25,27 @@
           <p class="subtitle">Simple, transparent view of the Baseline blockchain</p>
         </div>
       </div>
-      <nav class="main-nav">
-        <a href="{{ url_for('index') }}">Blocks</a>
-        <a href="{{ url_for('transactions') }}">Transactions</a>
-        <a href="{{ url_for('richlist') }}">Rich List</a>
-        <a href="{{ url_for('scheduled') }}">Scheduled Sends</a>
-      </nav>
-      <form class="search" action="{{ url_for('search') }}" method="post">
-        <input name="query" placeholder="Block / tx / address / height" autocomplete="off">
-        <button type="submit">Search</button>
-      </form>
+
+      <div class="header-actions">
+        <input class="nav-toggle" id="nav-toggle" type="checkbox" aria-label="Toggle navigation">
+        <label class="nav-toggle-label" for="nav-toggle" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </label>
+
+        <nav class="main-nav" aria-label="Primary navigation">
+          <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' else '' }}">Blocks</a>
+          <a href="{{ url_for('transactions') }}" class="{{ 'active' if request.endpoint == 'transactions' else '' }}">Transactions</a>
+          <a href="{{ url_for('richlist') }}" class="{{ 'active' if request.endpoint == 'richlist' else '' }}">Rich List</a>
+          <a href="{{ url_for('scheduled') }}" class="{{ 'active' if request.endpoint == 'scheduled' else '' }}">Scheduled Sends</a>
+        </nav>
+
+        <form class="search" action="{{ url_for('search') }}" method="post">
+          <input name="query" placeholder="Block / tx / address / height" autocomplete="off">
+          <button type="submit">Search</button>
+        </form>
+      </div>
     </header>
 
     <main class="content">
@@ -44,5 +55,19 @@
     <footer>
       <p>Powered by Baseline Labs</p>
     </footer>
+
+    <script>
+      (function () {
+        var toggle = document.getElementById("nav-toggle");
+        if (!toggle) return;
+        document.addEventListener("click", function (ev) {
+          var target = ev.target;
+          if (!target) return;
+          if (target.closest && target.closest(".main-nav a")) {
+            toggle.checked = false;
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

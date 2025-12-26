@@ -29,6 +29,8 @@ def load_config() -> dict[str, Any]:
     display.setdefault("transactions_per_page", 25)
     display.setdefault("address_history", 15)
     display.setdefault("scheduled_recent", 8)
+    display.setdefault("blocks_per_page", display.get("recent_blocks", 10))
+    display.setdefault("scheduled_per_page", display.get("scheduled_recent", 8))
     display.setdefault("rich_list_per_page", display.get("rich_list_limit", 25))
     display.setdefault("network_name", "Baseline")
     config["display"] = display
@@ -52,7 +54,19 @@ class RPCClient:
             response = requests.post(self.url, json=payload, auth=self.auth, timeout=self.timeout)
         except requests.RequestException as exc:  # noqa: BLE001
             raise RPCError(f"Unable to reach Baseline RPC: {exc}") from exc
-        data = response.json()
+        if response.status_code != 200:
+            snippet = (response.text or "").strip().replace("\n", " ")
+            if len(snippet) > 200:
+                snippet = snippet[:200] + "..."
+            raise RPCError(f"RPC HTTP {response.status_code}: {snippet or 'no response body'}")
+        try:
+            data = response.json()
+        except ValueError as exc:  # requests.exceptions.JSONDecodeError derives from ValueError
+            content_type = response.headers.get("content-type", "unknown")
+            snippet = (response.text or "").strip().replace("\n", " ")
+            if len(snippet) > 200:
+                snippet = snippet[:200] + "..."
+            raise RPCError(f"RPC returned non-JSON ({content_type}): {snippet or 'empty body'}") from exc
         if data.get("error"):
             err = data["error"]
             raise RPCError(f"{err.get('message')} (code {err.get('code')})")

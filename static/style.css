@@ -27,6 +27,71 @@ body {
   gap: 1rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 1;
+  min-width: 320px;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.main-nav a {
+  color: rgba(248, 251, 255, 0.9);
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.main-nav a:hover {
+  text-decoration: none;
+  background: rgba(71, 194, 255, 0.12);
+}
+
+.main-nav a.active {
+  background: rgba(71, 194, 255, 0.22);
+  border: 1px solid rgba(71, 194, 255, 0.35);
+}
+
+.nav-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav-toggle-label {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.nav-toggle-label span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: rgba(248, 251, 255, 0.9);
+  border-radius: 999px;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -67,6 +132,10 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
+}
+
+.search button:active {
+  transform: translateY(1px);
 }
 
 .content {
@@ -227,4 +296,57 @@ footer {
 .pagination .disabled {
   border-color: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 900px) {
+  .top-bar {
+    padding: 1.1rem 1rem;
+  }
+
+  .brand img {
+    height: 46px;
+  }
+
+  .header-actions {
+    min-width: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav-toggle-label {
+    display: inline-flex;
+  }
+
+  .main-nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+    border-radius: 14px;
+    padding: 0.6rem;
+  }
+
+  .main-nav a {
+    border-radius: 12px;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .nav-toggle:checked ~ .main-nav {
+    display: flex;
+  }
+
+  .search {
+    width: 100%;
+    order: 3;
+  }
+
+  .search input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .content {
+    padding: 1.25rem 1rem 3rem;
+  }
 }
