@@ -28,8 +28,23 @@ def format_lock_time(lock_time: int | None) -> str:
 def human_delta(ts: int | None) -> str:
     if not ts:
         return "-"
-    delta = datetime.now(timezone.utc) - datetime.fromtimestamp(ts, tz=timezone.utc)
+    now = datetime.now(timezone.utc)
+    then = datetime.fromtimestamp(ts, tz=timezone.utc)
+    delta = now - then
     seconds = int(delta.total_seconds())
+
+    if seconds < 0:
+        seconds = abs(seconds)
+        if seconds < 60:
+            return f"in {seconds}s"
+        minutes = seconds // 60
+        if minutes < 60:
+            return f"in {minutes}m"
+        hours = minutes // 60
+        if hours < 24:
+            return f"in {hours}h"
+        days = hours // 24
+        return f"in {days}d"
     if seconds < 60:
         return f"{seconds}s ago"
     minutes = seconds // 60

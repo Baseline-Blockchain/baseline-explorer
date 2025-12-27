@@ -3,7 +3,13 @@
 <div class="card">
   <h2>Block {{ block.height if block.height is defined else "" }}</h2>
   <p><strong>Hash:</strong> <span class="hash">{{ block.hash }}</span></p>
-  <p><strong>Previous:</strong> <a class="hash" href="{{ url_for('block_detail', block_hash=block.previousblockhash) }}">{{ block.previousblockhash }}</a></p>
+  <p><strong>Previous:</strong>
+    {% if block.height == 0 or block.previousblockhash == ("0" * 64) %}
+      (none)
+    {% else %}
+      <a class="hash" href="{{ url_for('block_detail', block_hash=block.previousblockhash) }}">{{ block.previousblockhash }}</a>
+    {% endif %}
+  </p>
   <p><strong>Next:</strong>
     {% if block.nextblockhash %}
       <a class="hash" href="{{ url_for('block_detail', block_hash=block.nextblockhash) }}">{{ block.nextblockhash }}</a>
