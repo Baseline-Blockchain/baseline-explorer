@@ -10,7 +10,7 @@
     {% set difficulty = chain.get("difficulty") %}
     <p>
       {% if difficulty is not none %}
-        {{ "{:,.2f}".format(difficulty) }}
+        {{ "{:,.6f}".format(difficulty) }}
       {% else %}
         -
       {% endif %}

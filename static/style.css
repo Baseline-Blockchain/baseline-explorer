@@ -257,8 +257,8 @@ footer {
 
 .hash {
   font-family: "Consolas", "SFMono-Regular", monospace;
-  word-break: break-all;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: nowrap;
 }
 
 .pagination {
@@ -334,6 +334,8 @@ footer {
 
   .nav-toggle:checked ~ .main-nav {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .search {
@@ -349,4 +351,10 @@ footer {
   .content {
     padding: 1.25rem 1rem 3rem;
   }
+}
+
+/* Prevent table cells (esp. TXIDs) from wrapping on small screens; rely on horizontal scroll instead. */
+.table-scroll th,
+.table-scroll td {
+  white-space: nowrap;
 }
