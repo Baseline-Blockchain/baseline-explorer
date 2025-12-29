@@ -114,6 +114,7 @@ body {
 .search {
   display: flex;
   gap: 0.4rem;
+  align-items: center;
 }
 
 .search input {
@@ -258,8 +259,15 @@ footer {
 
 .hash {
   font-family: "Consolas", "SFMono-Regular", monospace;
-  word-break: normal;
+  word-break: break-all;
   white-space: nowrap;
+}
+
+/* Hashes inside cards (summary panels) should wrap gracefully on small screens. */
+.card .hash,
+.card a.hash {
+  white-space: normal;
+  word-break: break-word;
 }
 
 .pagination {
@@ -302,6 +310,8 @@ footer {
 @media (max-width: 900px) {
   .top-bar {
     padding: 1.1rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .brand img {
@@ -312,6 +322,8 @@ footer {
     min-width: 0;
     width: 100%;
     justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.6rem;
   }
 
   .nav-toggle-label {
@@ -342,6 +354,8 @@ footer {
   .search {
     width: 100%;
     order: 3;
+    justify-content: flex-start;
+    margin-top: 0.35rem;
   }
 
   .search input {
@@ -358,4 +372,20 @@ footer {
 .table-scroll th,
 .table-scroll td {
   white-space: nowrap;
+  word-break: keep-all;
+}
+
+/* Mobile tweaks for long hashes: allow breaking if no scroll is available. */
+@media (max-width: 600px) {
+  .table-scroll {
+    overflow-x: auto;
+  }
+  .hash {
+    word-break: break-all;
+    white-space: normal;
+  }
+  th,
+  td {
+    word-break: break-word;
+  }
 }
