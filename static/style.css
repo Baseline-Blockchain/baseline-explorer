@@ -80,6 +80,7 @@ body {
   background: rgba(255, 255, 255, 0.04);
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   gap: 5px;
   cursor: pointer;
 }
