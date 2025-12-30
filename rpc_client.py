@@ -28,9 +28,8 @@ def load_config() -> dict[str, Any]:
     display.setdefault("recent_blocks", 10)
     display.setdefault("transactions_per_page", 25)
     display.setdefault("address_history", 15)
-    display.setdefault("scheduled_recent", 8)
+    display.setdefault("address_per_page", display.get("address_history", 15))
     display.setdefault("blocks_per_page", display.get("recent_blocks", 10))
-    display.setdefault("scheduled_per_page", display.get("scheduled_recent", 8))
     display.setdefault("rich_list_per_page", display.get("rich_list_limit", 25))
     display.setdefault("network_name", "Baseline")
     config["display"] = display

@@ -3,35 +3,66 @@
 <div class="card">
   <h2>Address <span class="hash">{{ address }}</span></h2>
   <p><strong>Balance:</strong> {{ format_amount(balance.balance_liners) }} BLINE</p>
-  <p><strong>Total Received:</strong> {{ format_amount(balance.received_liners) }} BLINE</p>
+</div>
+
+<div class="pagination">
+  {% if has_prev %}
+  <a href="{{ url_for('address_detail', address=address, page=page-1) }}">&larr; Previous</a>
+  {% else %}
+  <span class="disabled">&larr; Previous</span>
+  {% endif %}
+  <span class="muted">Page {{ page }}</span>
+  {% if has_next %}
+  <a href="{{ url_for('address_detail', address=address, page=page+1) }}">Next &rarr;</a>
+  {% else %}
+  <span class="disabled">Next &rarr;</span>
+  {% endif %}
 </div>
 
 <h2>Recent Activity</h2>
-<div class="table-scroll">
-  <table>
-    <thead>
-      <tr>
-        <th>TxID</th>
-        <th>Time</th>
-        <th>Received</th>
-        <th>Sent</th>
-        <th>Net</th>
-        <th>Confirmations</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for entry in history %}
-      <tr>
-        <td class="hash"><a href="{{ url_for('tx_detail', txid=entry.txid, block=entry.blockhash) }}">{{ entry.txid }}</a></td>
-        <td>{{ format_timestamp(entry.time) }}</td>
-        <td>{{ format_amount(entry.received) }}</td>
-        <td>{{ format_amount(entry.sent) }}</td>
-        <td>{{ format_amount(entry.net) }}</td>
-        <td>{{ entry.confirmations }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% if history %}
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>TxID</th>
+          <th>Time</th>
+          <th>Received</th>
+          <th>Sent</th>
+          <th>Net</th>
+          <th>Confirmations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in history %}
+        <tr>
+          <td class="hash"><a href="{{ url_for('tx_detail', txid=entry.txid, block=entry.blockhash) }}">{{ entry.txid }}</a></td>
+          <td>{{ format_timestamp(entry.time) }}</td>
+          <td>{{ format_amount(entry.received) }}</td>
+          <td>{{ format_amount(entry.sent) }}</td>
+          <td>{{ format_amount(entry.net) }}</td>
+          <td>{{ entry.confirmations }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="muted">No transactions to show for page {{ page }}.</p>
+{% endif %}
+
+<div class="pagination">
+  {% if has_prev %}
+  <a href="{{ url_for('address_detail', address=address, page=page-1) }}">&larr; Previous</a>
+  {% else %}
+  <span class="disabled">&larr; Previous</span>
+  {% endif %}
+  <span class="muted">Showing {{ per_page }} per page</span>
+  {% if has_next %}
+  <a href="{{ url_for('address_detail', address=address, page=page+1) }}">Next &rarr;</a>
+  {% else %}
+  <span class="disabled">Next &rarr;</span>
+  {% endif %}
 </div>
 
 {% endblock %}

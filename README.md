@@ -6,7 +6,7 @@ A lightweight Flask UI that hits a local Baseline node via JSON-RPC to show:
 - Paginated Recent Transactions view with block links, sizes, fees, and confirmations
 - Rich List powered by the node RPC `getrichlist`
 - Transaction pages (with decoded inputs/outputs and granular fees)
-- Dedicated scheduled send list plus address balance/history/UTXO views and a universal search box
+- Address balance/history/UTXO views and a universal search box
 
 ### Quick start
 

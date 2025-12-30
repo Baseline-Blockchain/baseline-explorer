@@ -38,7 +38,6 @@
           <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' else '' }}">Blocks</a>
           <a href="{{ url_for('transactions') }}" class="{{ 'active' if request.endpoint == 'transactions' else '' }}">Transactions</a>
           <a href="{{ url_for('richlist') }}" class="{{ 'active' if request.endpoint == 'richlist' else '' }}">Rich List</a>
-          <a href="{{ url_for('scheduled') }}" class="{{ 'active' if request.endpoint == 'scheduled' else '' }}">Scheduled Sends</a>
         </nav>
 
         <form class="search" action="{{ url_for('search') }}" method="post">

@@ -5,7 +5,7 @@ from typing import Any
 
 from flask import Flask, abort, redirect, render_template, request, url_for
 
-from helpers import format_amount, format_lock_time, format_timestamp, human_delta
+from helpers import format_amount, format_timestamp, human_delta
 from rpc_client import CONFIG, RPCError, RPC_URL, rpc_call
 from services import expand_transaction, fetch_recent_blocks, fetch_recent_transactions
 
@@ -18,7 +18,6 @@ def inject_helpers() -> dict[str, Any]:
     return {
         "format_amount": format_amount,
         "format_timestamp": format_timestamp,
-        "format_lock_time": format_lock_time,
         "human_delta": human_delta,
         "network_name": CONFIG["display"]["network_name"],
         "RPC_URL": RPC_URL,
@@ -44,30 +43,6 @@ def index() -> str:
         chain=chain_info,
         mempool=mempool_info,
         blocks=blocks,
-        page=page,
-        has_prev=page > 1,
-        has_next=has_next,
-        per_page=per_page,
-    )
-
-
-@app.route("/scheduled")
-def scheduled() -> str:
-    try:
-        page = max(int(request.args.get("page", "1")), 1)
-    except ValueError:
-        page = 1
-    try:
-        schedules = rpc_call("listscheduledtx")
-    except RPCError as exc:
-        app.logger.warning("Unable to list scheduled sends: %s", exc)
-        schedules = []
-    per_page = max(1, int(CONFIG["display"].get("scheduled_per_page", CONFIG["display"]["scheduled_recent"])))
-    offset = (page - 1) * per_page
-    has_next = len(schedules) > (offset + per_page)
-    return render_template(
-        "scheduled.html",
-        scheduled=schedules[offset : offset + per_page],
         page=page,
         has_prev=page > 1,
         has_next=has_next,
@@ -181,6 +156,13 @@ def tx_detail(txid: str) -> str:
 @app.route("/address/<address>")
 def address_detail(address: str) -> str:
     try:
+        page = max(int(request.args.get("page", "1")), 1)
+    except ValueError:
+        page = 1
+    per_page = max(
+        1, int(CONFIG["display"].get("address_per_page", CONFIG["display"]["address_history"]))
+    )
+    try:
         balance = rpc_call("getaddressbalance", [{"addresses": [address]}])
         tx_refs = rpc_call(
             "getaddresstxids",
@@ -194,9 +176,14 @@ def address_detail(address: str) -> str:
             normalized.append(ref)
         else:
             normalized.append({"txid": ref, "height": None, "blockhash": None})
+    normalized.sort(key=lambda ref: ref.get("height") if isinstance(ref, dict) else -1)
+    ordered = list(reversed(normalized))
+    offset = (page - 1) * per_page
+    window = ordered[offset : offset + per_page + 1]
+    has_next = len(window) > per_page
+    window = window[:per_page]
     history: list[dict[str, Any]] = []
-    limit = CONFIG["display"]["address_history"]
-    for ref in normalized[-limit:][::-1]:
+    for ref in window:
         txid = ref["txid"]
         blockhash = ref.get("blockhash")
         try:
@@ -223,6 +210,10 @@ def address_detail(address: str) -> str:
         address=address,
         balance=balance,
         history=history,
+        page=page,
+        has_prev=page > 1,
+        has_next=has_next,
+        per_page=per_page,
     )
 
 
