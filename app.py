@@ -164,10 +164,18 @@ def address_detail(address: str) -> str:
     )
     try:
         balance = rpc_call("getaddressbalance", [{"addresses": [address]}])
-        tx_refs = rpc_call(
-            "getaddresstxids",
-            [{"addresses": [address], "include_height": True}],
-        )
+        limit = 500
+        offset = 0
+        tx_refs: list[Any] = []
+        while True:
+            batch = rpc_call(
+                "getaddresstxids",
+                [{"addresses": [address], "include_height": True, "limit": limit, "offset": offset}],
+            )
+            tx_refs.extend(batch)
+            if len(batch) < limit:
+                break
+            offset += limit
     except RPCError:
         abort(404, f"Unknown address {address}")
     normalized: list[dict[str, Any]] = []
