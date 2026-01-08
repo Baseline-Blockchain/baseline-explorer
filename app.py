@@ -164,18 +164,13 @@ def address_detail(address: str) -> str:
     )
     try:
         balance = rpc_call("getaddressbalance", [{"addresses": [address]}])
-        limit = 500
-        offset = 0
-        tx_refs: list[Any] = []
-        while True:
-            batch = rpc_call(
-                "getaddresstxids",
-                [{"addresses": [address], "include_height": True, "limit": limit, "offset": offset}],
-            )
-            tx_refs.extend(batch)
-            if len(batch) < limit:
-                break
-            offset += limit
+        # Page txids directly: only fetch what we need (+1 to detect next page)
+        limit = per_page + 1
+        offset = (page - 1) * per_page
+        tx_refs: list[Any] = rpc_call(
+            "getaddresstxids",
+            [{"addresses": [address], "include_height": True, "limit": limit, "offset": offset}],
+        )
     except RPCError:
         abort(404, f"Unknown address {address}")
     normalized: list[dict[str, Any]] = []
