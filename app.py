@@ -173,18 +173,17 @@ def address_detail(address: str) -> str:
         )
     except RPCError:
         abort(404, f"Unknown address {address}")
+    # Normalize only the fetched page window
     normalized: list[dict[str, Any]] = []
     for ref in tx_refs:
         if isinstance(ref, dict):
             normalized.append(ref)
         else:
-            normalized.append({"txid": ref, "height": None, "blockhash": None})
-    normalized.sort(key=lambda ref: ref.get("height") if isinstance(ref, dict) else -1)
-    ordered = list(reversed(normalized))
-    offset = (page - 1) * per_page
-    window = ordered[offset : offset + per_page + 1]
-    has_next = len(window) > per_page
-    window = window[:per_page]
+           normalized.append({"txid": ref, "height": None, "blockhash": None})
+
+    # We fetched per_page + 1 to detect next page
+    has_next = len(normalized) > per_page
+    window = normalized[:per_page]
     history: list[dict[str, Any]] = []
     for ref in window:
         txid = ref["txid"]
