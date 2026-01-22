@@ -7,7 +7,13 @@ from flask import Flask, abort, redirect, render_template, request, url_for
 
 from helpers import format_amount, format_timestamp, human_delta
 from rpc_client import CONFIG, RPCError, RPC_URL, rpc_call
-from services import expand_transaction, fetch_recent_blocks, fetch_recent_transactions
+from services import (
+    expand_transaction,
+    fetch_chain_tips,
+    fetch_mempool_stats,
+    fetch_recent_blocks,
+    fetch_recent_transactions,
+)
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("EXPLORER_SECRET_KEY", "baseline-explorer")
@@ -104,6 +110,18 @@ def richlist() -> str:
         per_page=per_page,
         error=error,
     )
+
+
+@app.route("/orphans")
+def orphans() -> str:
+    tips = fetch_chain_tips()
+    return render_template("orphans.html", tips=tips)
+
+
+@app.route("/mempool")
+def mempool() -> str:
+    stats = fetch_mempool_stats()
+    return render_template("mempool.html", stats=stats)
 
 
 @app.route("/block/<block_hash>")

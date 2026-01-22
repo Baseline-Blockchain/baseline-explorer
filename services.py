@@ -218,4 +218,66 @@ __all__ = [
     "expand_transaction",
     "fetch_recent_blocks",
     "fetch_recent_transactions",
+    "fetch_chain_tips",
+    "fetch_mempool_stats",
 ]
+
+
+def fetch_chain_tips() -> list[dict[str, Any]]:
+    return rpc_call("getchaintips")
+
+
+def fetch_mempool_stats() -> dict[str, Any]:
+    raw = rpc_call("getrawmempool", [True])
+    if not raw:
+        return {
+            "count": 0,
+            "total_size": 0,
+            "total_fees": 0,
+            "min_fee": 0,
+            "max_fee": 0,
+            "median_fee": 0,
+            "buckets": {}
+        }
+
+    fees = []
+    total_size = 0
+    total_fee_val = 0.0
+
+    for txid, entry in raw.items():
+        size = entry["size"]
+        fee_coins = entry["fee"]
+        fee_sats = fee_coins * 100_000_000
+        rate = fee_sats / size if size > 0 else 0
+        fees.append(rate)
+        total_size += size
+        total_fee_val += fee_coins
+
+    fees.sort()
+    count = len(fees)
+
+    stats = {
+        "count": count,
+        "total_size": total_size,
+        "total_fees": total_fee_val,
+        "min_fee": fees[0],
+        "max_fee": fees[-1],
+        "median_fee": fees[count // 2],
+    }
+
+    # Histogram buckets
+    buckets = {
+        "0-1": 0, "1-2": 0, "2-5": 0, "5-10": 0, "10-20": 0, "20+": 0
+    }
+    ordered_keys = ["0-1", "1-2", "2-5", "5-10", "10-20", "20+"]
+
+    for r in fees:
+        if r < 1: buckets["0-1"] += 1
+        elif r < 2: buckets["1-2"] += 1
+        elif r < 5: buckets["2-5"] += 1
+        elif r < 10: buckets["5-10"] += 1
+        elif r < 20: buckets["10-20"] += 1
+        else: buckets["20+"] += 1
+
+    stats["buckets"] = {k: buckets[k] for k in ordered_keys}
+    return stats

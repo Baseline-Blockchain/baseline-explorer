@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Chain Tips (Reorgs & Forks)</h2>
+<div class="table-scroll">
+    <table>
+        <thead>
+            <tr>
+                <th>Height</th>
+                <th>Hash</th>
+                <th>Status</th>
+                <th>Branch Length</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tip in tips %}
+            <tr>
+                <td><a href="{{ url_for('block_by_height', height=tip.height) }}">{{ tip.height }}</a></td>
+                <td class="hash"><a href="{{ url_for('block_detail', block_hash=tip.hash) }}">{{ tip.hash }}</a></td>
+                <td>
+                    {% if tip.status == "active" %}<span class="tag success">Active</span>
+                    {% else %}<span class="tag warning">{{ tip.status }}</span>{% endif %}
+                </td>
+                <td>{{ tip.branchlen }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

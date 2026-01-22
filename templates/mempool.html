@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Mempool Statistics</h2>
+
+<div class="grid">
+    <div class="card">
+        <h3>Count</h3>
+        <p class="value">{{ stats.count }}</p>
+    </div>
+    <div class="card">
+        <h3>Total Size</h3>
+        <p class="value">{{ "{:,}".format(stats.total_size) }} bytes</p>
+    </div>
+    <div class="card">
+        <h3>Total Fees</h3>
+        <p class="value">{{ "{:,.8f}".format(stats.total_fees) }}</p>
+    </div>
+</div>
+
+<div class="grid" style="margin-top: 1rem;">
+    <div class="card">
+        <h3>Fee Rates (sat/vByte)</h3>
+        <p>Min: {{ "{:,.2f}".format(stats.min_fee) }}</p>
+        <p>Median: {{ "{:,.2f}".format(stats.median_fee) }}</p>
+        <p>Max: {{ "{:,.2f}".format(stats.max_fee) }}</p>
+    </div>
+</div>
+
+<h3 style="margin-top: 2rem;">Fee Distribution</h3>
+<div class="chart-container">
+    {% for bucket, count in stats.buckets.items() %}
+    <div class="bar-row">
+        <div class="label">{{ bucket }}</div>
+        <div class="bar-wrapper">
+            <div class="bar" style="width: {{ (count / stats.count * 100) if stats.count > 0 else 0 }}%;"></div>
+            <span class="count">{{ count }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .bar-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .label {
+        width: 60px;
+        font-weight: bold;
+    }
+
+    .bar-wrapper {
+        flex: 1;
+        background: #eee;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .bar {
+        background: #007bff;
+        height: 100%;
+    }
+
+    .count {
+        margin-left: 10px;
+        font-size: 0.9em;
+    }
+</style>
+{% endblock %}
