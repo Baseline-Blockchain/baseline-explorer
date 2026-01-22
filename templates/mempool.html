@@ -36,45 +36,56 @@
 <div class="chart-container">
     {% for bucket, count in stats.buckets.items() %}
     <div class="bar-row">
-        <div class="label">{{ bucket }}</div>
+        <div class="label">{{ bucket }} sat/vB</div>
         <div class="bar-wrapper">
             <div class="bar" style="width: {{ (count / stats.count * 100) if stats.count > 0 else 0 }}%;"></div>
-            <span class="count">{{ count }}</span>
         </div>
+        <span class="count">{{ count }} tx</span>
     </div>
     {% endfor %}
 </div>
 
 <style>
+    .chart-container {
+        margin-top: 1rem;
+        max-width: 800px;
+    }
+
     .bar-row {
         display: flex;
         align-items: center;
-        margin-bottom: 5px;
+        margin-bottom: 0.75rem;
+        gap: 1rem;
     }
 
     .label {
-        width: 60px;
+        width: 110px;
         font-weight: bold;
+        text-align: right;
+        font-size: 0.9em;
     }
 
     .bar-wrapper {
         flex: 1;
-        background: #eee;
-        height: 20px;
-        display: flex;
-        align-items: center;
+        background: #2a2a2a;
+        height: 28px;
         border-radius: 4px;
         overflow: hidden;
+        border: 1px solid #3a3a3a;
     }
 
     .bar {
-        background: #007bff;
+        background: linear-gradient(90deg, #007bff, #0056b3);
         height: 100%;
+        transition: width 0.3s ease;
+        min-width: 2px;
     }
 
     .count {
-        margin-left: 10px;
+        min-width: 60px;
         font-size: 0.9em;
+        font-weight: bold;
+        color: #aaa;
     }
 </style>
 {% endblock %}

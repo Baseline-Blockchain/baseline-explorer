@@ -12,8 +12,7 @@
     </p>
     <p><strong>Valid forks (branch length 2+):</strong> Deeper reorganizations. These are rarer and worth investigating.
     </p>
-    <p style="margin-bottom: 0;"><em>Seeing many length-1 forks is healthy and expected. It shows your node is
-            well-connected to the network.</em></p>
+    <p style="margin-bottom: 0;"><em>Seeing many length-1 forks is healthy and expected.</em></p>
 </div>
 
 {% set active_tip = tips | selectattr('status', 'equalto', 'active') | list | first %}
@@ -34,8 +33,9 @@
     </div>
     <div class="card">
         <h2>Orphaned Blocks</h2>
-        <p class="muted">1 block (normal)</p>
+        <p class="muted">Single-block orphans</p>
         <p class="value">{{ shallow_forks | length }}</p>
+        <p class="muted" style="font-size: 0.85em; margin-top: 0.5rem;">✓ Expected behavior</p>
     </div>
 </div>
 
