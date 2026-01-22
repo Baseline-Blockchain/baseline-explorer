@@ -8,7 +8,8 @@
     <p><strong>Active chain:</strong> The main blockchain everyone agrees on.</p>
     <p><strong>Valid forks (branch length 1):</strong> Orphaned blocks that arrived slightly late. This is
         <strong>completely normal</strong> in a fast blockchain (20s blocks). Miners occasionally find blocks at nearly
-        the same time, and one gets orphaned.</p>
+        the same time, and one gets orphaned.
+    </p>
     <p><strong>Valid forks (branch length 2+):</strong> Deeper reorganizations. These are rarer and worth investigating.
     </p>
     <p style="margin-bottom: 0;"><em>Seeing many length-1 forks is healthy and expected. It shows your node is
@@ -51,7 +52,7 @@
         </thead>
         <tbody>
             {% if active_tip %}
-            <tr style="background: #e8f5e9;">
+            <tr>
                 <td><a href="{{ url_for('block_by_height', height=active_tip.height) }}">{{ active_tip.height }}</a>
                 </td>
                 <td class="hash"><a href="{{ url_for('block_detail', block_hash=active_tip.hash) }}">{{ active_tip.hash
