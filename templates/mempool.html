@@ -4,29 +4,35 @@
 
 <div class="grid">
     <div class="card">
-        <h3>Count</h3>
+        <h2>Transactions</h2>
+        <p class="muted">Count</p>
         <p class="value">{{ stats.count }}</p>
     </div>
     <div class="card">
-        <h3>Total Size</h3>
-        <p class="value">{{ "{:,}".format(stats.total_size) }} bytes</p>
+        <h2>Size</h2>
+        <p class="muted">Total Bytes</p>
+        <p class="value">{{ "{:,}".format(stats.total_size) }}</p>
     </div>
     <div class="card">
-        <h3>Total Fees</h3>
+        <h2>Fees</h2>
+        <p class="muted">Total (BLINE)</p>
         <p class="value">{{ "{:,.8f}".format(stats.total_fees) }}</p>
     </div>
 </div>
 
 <div class="grid" style="margin-top: 1rem;">
     <div class="card">
-        <h3>Fee Rates (sat/vByte)</h3>
-        <p>Min: {{ "{:,.2f}".format(stats.min_fee) }}</p>
-        <p>Median: {{ "{:,.2f}".format(stats.median_fee) }}</p>
-        <p>Max: {{ "{:,.2f}".format(stats.max_fee) }}</p>
+        <h2>Fee Rates</h2>
+        <p class="muted">Min (sat/vB)</p>
+        <p>{{ "{:,.2f}".format(stats.min_fee) }}</p>
+        <p class="muted">Median (sat/vB)</p>
+        <p>{{ "{:,.2f}".format(stats.median_fee) }}</p>
+        <p class="muted">Max (sat/vB)</p>
+        <p>{{ "{:,.2f}".format(stats.max_fee) }}</p>
     </div>
 </div>
 
-<h3 style="margin-top: 2rem;">Fee Distribution</h3>
+<h2 style="margin-top: 2rem;">Fee Distribution</h2>
 <div class="chart-container">
     {% for bucket, count in stats.buckets.items() %}
     <div class="bar-row">

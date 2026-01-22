@@ -1,6 +1,42 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Chain Tips (Reorgs & Forks)</h2>
+<h2>Chain Tips & Forks</h2>
+
+<div class="info-box"
+    style="background: #f0f8ff; border-left: 4px solid #007bff; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+    <h3 style="margin-top: 0;">ℹ️ What am I looking at?</h3>
+    <p><strong>Active chain:</strong> The main blockchain everyone agrees on.</p>
+    <p><strong>Valid forks (branch length 1):</strong> Orphaned blocks that arrived slightly late. This is
+        <strong>completely normal</strong> in a fast blockchain (20s blocks). Miners occasionally find blocks at nearly
+        the same time, and one gets orphaned.</p>
+    <p><strong>Valid forks (branch length 2+):</strong> Deeper reorganizations. These are rarer and worth investigating.
+    </p>
+    <p style="margin-bottom: 0;"><em>Seeing many length-1 forks is healthy and expected. It shows your node is
+            well-connected to the network.</em></p>
+</div>
+
+{% set active_tip = tips | selectattr('status', 'equalto', 'active') | list | first %}
+{% set deep_forks = tips | rejectattr('status', 'equalto', 'active') | selectattr('branchlen', 'gt', 1) | list %}
+{% set shallow_forks = tips | rejectattr('status', 'equalto', 'active') | selectattr('branchlen', 'equalto', 1) | list
+%}
+
+<div class="grid" style="margin-bottom: 1.5rem;">
+    <div class="card">
+        <h3>Active Chain</h3>
+        <p class="value">Height {{ active_tip.height if active_tip else 'N/A' }}</p>
+    </div>
+    <div class="card">
+        <h3>Deep Forks (2+ blocks)</h3>
+        <p class="value">{{ deep_forks | length }}</p>
+    </div>
+    <div class="card">
+        <h3>Orphaned Blocks (1 block)</h3>
+        <p class="value">{{ shallow_forks | length }}</p>
+        <p class="muted" style="font-size: 0.85em; margin-top: 0.5rem;">Normal network activity ✓</p>
+    </div>
+</div>
+
+<h3 style="margin-top: 2rem;">Active Chain & Deep Forks</h3>
 <div class="table-scroll">
     <table>
         <thead>
@@ -12,18 +48,51 @@
             </tr>
         </thead>
         <tbody>
-            {% for tip in tips %}
+            {% if active_tip %}
+            <tr style="background: #e8f5e9;">
+                <td><a href="{{ url_for('block_by_height', height=active_tip.height) }}">{{ active_tip.height }}</a>
+                </td>
+                <td class="hash"><a href="{{ url_for('block_detail', block_hash=active_tip.hash) }}">{{ active_tip.hash
+                        }}</a></td>
+                <td><span class="tag success">Active</span></td>
+                <td>{{ active_tip.branchlen }}</td>
+            </tr>
+            {% endif %}
+            {% for tip in deep_forks %}
             <tr>
                 <td><a href="{{ url_for('block_by_height', height=tip.height) }}">{{ tip.height }}</a></td>
                 <td class="hash"><a href="{{ url_for('block_detail', block_hash=tip.hash) }}">{{ tip.hash }}</a></td>
-                <td>
-                    {% if tip.status == "active" %}<span class="tag success">Active</span>
-                    {% else %}<span class="tag warning">{{ tip.status }}</span>{% endif %}
-                </td>
-                <td>{{ tip.branchlen }}</td>
+                <td><span class="tag warning">{{ tip.status }}</span></td>
+                <td><strong>{{ tip.branchlen }}</strong></td>
             </tr>
             {% endfor %}
+            {% if not deep_forks %}
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem; color: #666;">
+                    No deep forks detected. The chain is running smoothly! 🎉
+                </td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
 </div>
+
+<style>
+    .tag {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+
+    .tag.success {
+        background: #4caf50;
+        color: white;
+    }
+
+    .tag.warning {
+        background: #ff9800;
+        color: white;
+    }
+</style>
 {% endblock %}
