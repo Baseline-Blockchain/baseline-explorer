@@ -10,11 +10,15 @@ from rpc_client import CONFIG, RPCError, rpc_call
 
 def fetch_block_by_height(height: int) -> dict[str, Any]:
     block_hash = rpc_call("getblockhash", [height])
-    block = rpc_call("getblock", [block_hash, True])
-    block["height"] = height
-    block["time_human"] = format_timestamp(block["time"])
-    block["age"] = human_delta(block["time"])
-    return block
+    header = rpc_call("getblockheader", [block_hash, True])
+    header["height"] = height
+    header["hash"] = block_hash
+    header["time_human"] = format_timestamp(header["time"])
+    header["age"] = human_delta(header["time"])
+    # Size/weight are not available from headers; keep placeholders for template compatibility
+    header.setdefault("size", None)
+    header.setdefault("weight", None)
+    return header
 
 
 def fetch_recent_blocks(latest_height: int, count: int) -> list[dict[str, Any]]:
@@ -57,14 +61,26 @@ def get_transaction(txid: str, block_hash: str | None = None) -> dict[str, Any]:
         return parse_transaction_from_block(txid, block_hash)
 
 
-def expand_transaction(txid: str, *, block_hash: str | None = None) -> dict[str, Any]:
-    tx = get_transaction(txid, block_hash)
+def expand_transaction(
+    txid: str, *, block_hash: str | None = None, tx_cache: dict[tuple[str, str | None], dict[str, Any]] | None = None
+) -> dict[str, Any]:
+    key = (txid, block_hash)
+    tx = tx_cache.get(key) if tx_cache is not None else None
+    if tx is None:
+        tx = get_transaction(txid, block_hash)
+        if tx_cache is not None:
+            tx_cache[key] = tx
     inputs: list[TxInput] = []
     for vin in tx.get("vin", []):
         if "coinbase" in vin:
             inputs.append(TxInput(txid="coinbase", vout=-1, value=None, address=None, is_coinbase=True))
             continue
-        prev = get_transaction(vin["txid"])
+        prev_key = (vin["txid"], None)
+        prev = tx_cache.get(prev_key) if tx_cache is not None else None
+        if prev is None:
+            prev = get_transaction(vin["txid"])
+            if tx_cache is not None:
+                tx_cache[prev_key] = prev
         prev_out = prev["vout"][vin["vout"]] if vin["vout"] < len(prev["vout"]) else {}
         value = prev_out.get("value")
         script = prev_out.get("scriptPubKey", "")

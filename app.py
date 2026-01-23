@@ -5,7 +5,7 @@ from typing import Any
 
 from flask import Flask, abort, redirect, render_template, request, url_for
 
-from helpers import format_amount, format_timestamp, human_delta
+from helpers import format_amount, format_hashrate, format_timestamp, human_delta
 from rpc_client import CONFIG, RPCError, RPC_URL, rpc_call
 from services import (
     expand_transaction,
@@ -23,6 +23,7 @@ app.config["SECRET_KEY"] = os.environ.get("EXPLORER_SECRET_KEY", "baseline-explo
 def inject_helpers() -> dict[str, Any]:
     return {
         "format_amount": format_amount,
+        "format_hashrate": format_hashrate,
         "format_timestamp": format_timestamp,
         "human_delta": human_delta,
         "network_name": CONFIG["display"]["network_name"],
@@ -38,6 +39,7 @@ def index() -> str:
         page = 1
     chain_info = rpc_call("getblockchaininfo")
     mempool_info = rpc_call("getmempoolinfo")
+    mining_info = rpc_call("getmininginfo")
     latest_height = chain_info["blocks"]
     per_page = max(1, int(CONFIG["display"].get("blocks_per_page", CONFIG["display"]["recent_blocks"])))
     offset = (page - 1) * per_page
@@ -48,6 +50,7 @@ def index() -> str:
         "index.html",
         chain=chain_info,
         mempool=mempool_info,
+        mining=mining_info,
         blocks=blocks,
         page=page,
         has_prev=page > 1,
@@ -197,17 +200,18 @@ def address_detail(address: str) -> str:
         if isinstance(ref, dict):
             normalized.append(ref)
         else:
-           normalized.append({"txid": ref, "height": None, "blockhash": None})
+            normalized.append({"txid": ref, "height": None, "blockhash": None})
 
     # We fetched per_page + 1 to detect next page
     has_next = len(normalized) > per_page
     window = normalized[:per_page]
     history: list[dict[str, Any]] = []
+    tx_cache: dict[tuple[str, str | None], dict[str, Any]] = {}
     for ref in window:
         txid = ref["txid"]
         blockhash = ref.get("blockhash")
         try:
-            tx = expand_transaction(txid, block_hash=blockhash)
+            tx = expand_transaction(txid, block_hash=blockhash, tx_cache=tx_cache)
         except RPCError as exc:
             app.logger.warning("Skipping tx %s for %s: %s", txid, address, exc)
             continue

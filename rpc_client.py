@@ -41,6 +41,7 @@ class RPCClient:
         self.url = url
         self.auth = auth
         self.timeout = timeout
+        self.session = requests.Session()
 
     def call(self, method: str, params: Iterable[Any] | None = None) -> Any:
         payload = {
@@ -50,7 +51,7 @@ class RPCClient:
             "params": list(params or []),
         }
         try:
-            response = requests.post(self.url, json=payload, auth=self.auth, timeout=self.timeout)
+            response = self.session.post(self.url, json=payload, auth=self.auth, timeout=self.timeout)
         except requests.RequestException as exc:  # noqa: BLE001
             raise RPCError(f"Unable to reach Baseline RPC: {exc}") from exc
         if response.status_code != 200:

@@ -15,6 +15,11 @@
         -
       {% endif %}
     </p>
+    <p class="muted">Network Hashrate</p>
+    <p>
+      {% set hashrate = mining.get("networkhashps") if mining else None %}
+      {{ format_hashrate(hashrate) }}
+    </p>
   </div>
   <div class="card">
     <h2>Mempool</h2>
@@ -49,7 +54,6 @@
         <th>Hash</th>
         <th>Time</th>
         <th>Tx</th>
-        <th>Size (bytes)</th>
       </tr>
     </thead>
     <tbody>
@@ -59,7 +63,6 @@
         <td class="hash"><a href="{{ url_for('block_detail', block_hash=block.hash) }}">{{ block.hash }}</a></td>
         <td>{{ block.age }}</td>
         <td>{{ block.nTx }}</td>
-        <td>{{ "{:,}".format(block.size) }}</td>
       </tr>
       {% endfor %}
     </tbody>

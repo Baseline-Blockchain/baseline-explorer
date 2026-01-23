@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from rpc_client import CONFIG
 
 ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+HASHRATE_UNITS = ["H/s", "kH/s", "MH/s", "GH/s", "TH/s", "PH/s", "EH/s"]
 
 
 def format_amount(liners: int) -> str:
@@ -57,6 +58,17 @@ def human_delta(ts: int | None) -> str:
     return f"{days}d ago"
 
 
+def format_hashrate(rate: float | int | None) -> str:
+    if rate is None:
+        return "-"
+    value = float(rate)
+    unit_index = 0
+    while value >= 1000 and unit_index < len(HASHRATE_UNITS) - 1:
+        value /= 1000
+        unit_index += 1
+    return f"{value:.2f} {HASHRATE_UNITS[unit_index]}"
+
+
 def address_from_script(script_hex: str) -> str | None:
     script = bytes.fromhex(script_hex)
     if (
@@ -95,6 +107,7 @@ __all__ = [
     "base58check_encode",
     "double_sha256",
     "format_amount",
+    "format_hashrate",
     "format_timestamp",
     "format_lock_time",
     "human_delta",
