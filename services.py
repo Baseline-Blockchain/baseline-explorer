@@ -8,17 +8,23 @@ from helpers import address_from_script, double_sha256, format_timestamp, human_
 from rpc_client import CONFIG, RPCError, rpc_call
 
 
-def fetch_block_by_height(height: int) -> dict[str, Any]:
+def fetch_block_by_height(height: int, *, include_txids: bool = False) -> dict[str, Any]:
     block_hash = rpc_call("getblockhash", [height])
-    header = rpc_call("getblockheader", [block_hash, True])
-    header["height"] = height
-    header["hash"] = block_hash
-    header["time_human"] = format_timestamp(header["time"])
-    header["age"] = human_delta(header["time"])
-    # Size/weight are not available from headers; keep placeholders for template compatibility
-    header.setdefault("size", None)
-    header.setdefault("weight", None)
-    return header
+    if include_txids:
+        block = rpc_call("getblock", [block_hash, True])
+    else:
+        block = rpc_call("getblockheader", [block_hash, True])
+    block["height"] = height
+    block["hash"] = block_hash
+    block["time_human"] = format_timestamp(block["time"])
+    block["age"] = human_delta(block["time"])
+    if not include_txids:
+        # Ensure expected keys exist for templates that used full blocks before
+        block.setdefault("tx", [])
+        block.setdefault("nTx", 0)
+        block.setdefault("size", None)
+        block.setdefault("weight", None)
+    return block
 
 
 def fetch_recent_blocks(latest_height: int, count: int) -> list[dict[str, Any]]:
@@ -118,27 +124,33 @@ def fetch_recent_transactions(
     transactions: list[dict[str, Any]] = []
     height = latest_height
     while len(transactions) < limit + offset and height >= 0:
-        block = fetch_block_by_height(height)
+        block = fetch_block_by_height(height, include_txids=True)
+        block_hash = block["hash"]
         for txid in block.get("tx", []):
             if len(transactions) >= limit + offset:
                 break
             try:
-                tx = expand_transaction(txid, block_hash=block["hash"])
+                tx = get_transaction(txid, block_hash=block_hash)
             except RPCError:
                 continue
-            inputs_sum = sum(inp.value or 0 for inp in tx["decoded_inputs"] if inp.value)
-            outputs_sum = sum(out.value for out in tx["decoded_outputs"])
+            # Prefer node-provided fee to avoid recomputing and extra lookups
+            fee_liners = tx.get("fee_liners")
+            if fee_liners is None:
+                # Fall back to summing any provided vin values
+                inputs_sum = sum(
+                    vin.get("value_liners") or vin.get("value") or 0 for vin in tx.get("vin", [])
+                )
+                outputs_sum = sum(vout.get("value") or 0 for vout in tx.get("vout", []))
+                fee_liners = inputs_sum - outputs_sum if inputs_sum else None
             transactions.append(
                 {
                     "txid": txid,
                     "block": block,
-                    "time": block["time"],
+                    "time": block.get("time"),
                     "height": height,
-                    "confirmations": block.get("confirmations", 0),
+                    "confirmations": tx.get("confirmations", block.get("confirmations", 0)),
                     "size": tx.get("size"),
-                    "fee": inputs_sum - outputs_sum if inputs_sum else None,
-                    "input_sum": inputs_sum,
-                    "output_sum": outputs_sum,
+                    "fee": fee_liners,
                 }
             )
         height -= 1
