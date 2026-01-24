@@ -22,6 +22,21 @@
     </p>
   </div>
   <div class="card">
+    <h2>Supply</h2>
+    {% if supply_error %}
+      <p class="muted">{{ supply_error }}</p>
+    {% elif supply %}
+      <p class="muted">Circulating</p>
+      <p class="value">{{ format_amount(supply.circulating_liners) }}</p>
+      <p class="muted">Total</p>
+      <p>{{ format_amount(supply.total_liners) }}</p>
+      <p class="muted">Max</p>
+      <p>300,000,000</p>
+    {% else %}
+      <p class="muted">-</p>
+    {% endif %}
+  </div>
+  <div class="card">
     <h2>Mempool</h2>
     <p class="muted">Transactions</p>
     <p>{{ mempool.size }}</p>

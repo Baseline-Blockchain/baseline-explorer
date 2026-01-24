@@ -40,6 +40,13 @@ def index() -> str:
     chain_info = rpc_call("getblockchaininfo")
     mempool_info = rpc_call("getmempoolinfo")
     mining_info = rpc_call("getmininginfo")
+    supply_info = None
+    supply_error = None
+    try:
+        supply_info = rpc_call("getcirculatingsupply")
+    except RPCError as exc:
+        app.logger.warning("Unable to fetch supply info: %s", exc)
+        supply_error = str(exc)
     latest_height = chain_info["blocks"]
     per_page = max(1, int(CONFIG["display"].get("blocks_per_page", CONFIG["display"]["recent_blocks"])))
     offset = (page - 1) * per_page
@@ -51,6 +58,8 @@ def index() -> str:
         chain=chain_info,
         mempool=mempool_info,
         mining=mining_info,
+        supply=supply_info,
+        supply_error=supply_error,
         blocks=blocks,
         page=page,
         has_prev=page > 1,
