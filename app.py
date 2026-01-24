@@ -5,7 +5,7 @@ from typing import Any
 
 from flask import Flask, abort, redirect, render_template, request, url_for
 
-from helpers import format_amount, format_hashrate, format_timestamp, human_delta
+from helpers import format_amount, format_amount_us, format_hashrate, format_timestamp, human_delta
 from rpc_client import CONFIG, RPCError, RPC_URL, rpc_call
 from services import (
     expand_transaction,
@@ -23,6 +23,7 @@ app.config["SECRET_KEY"] = os.environ.get("EXPLORER_SECRET_KEY", "baseline-explo
 def inject_helpers() -> dict[str, Any]:
     return {
         "format_amount": format_amount,
+        "format_amount_us": format_amount_us,
         "format_hashrate": format_hashrate,
         "format_timestamp": format_timestamp,
         "human_delta": human_delta,

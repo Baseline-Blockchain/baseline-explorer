@@ -12,6 +12,10 @@ def format_amount(liners: int) -> str:
     return f"{liners / 100_000_000:.8f}"
 
 
+def format_amount_us(liners: int) -> str:
+    return f"{liners / 100_000_000:,.8f}"
+
+
 def format_timestamp(ts: int | None) -> str:
     if not ts:
         return "-"
@@ -107,6 +111,7 @@ __all__ = [
     "base58check_encode",
     "double_sha256",
     "format_amount",
+    "format_amount_us",
     "format_hashrate",
     "format_timestamp",
     "format_lock_time",
